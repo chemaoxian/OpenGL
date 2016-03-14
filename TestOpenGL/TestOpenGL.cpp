@@ -34,7 +34,7 @@ void printErrorAndExitFileLine(const char* file, int line, const char* fmt, ...)
 
 void error(int err, const char* errMsg) {
 	printf("%d:%s\n", err, errMsg);
-}
+} 
 
 bool isPressed = false;
 void onMouseEven(GLFWwindow* pWindow, int button, int action, int modify) {
