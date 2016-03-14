@@ -69,7 +69,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (!glfwInit()) {
 		PRINT_ERROR_AND_EXIT("init glfw failed");
 	}
-
+	
 	gScreen.screenWidth = 800;
 	gScreen.screenHeight = 600;
 
