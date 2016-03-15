@@ -51,6 +51,9 @@
     <ClInclude Include="..\common\include\vmath.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\include\targa.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\common\include\LoadShaders.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\include\targa.cpp">
       <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>

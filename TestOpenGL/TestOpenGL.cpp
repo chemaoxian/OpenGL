@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <Windows.h>
 #include "LoadShaders.h"
 #include "BoxCell.h"
 #include "vmath.h"
@@ -43,13 +42,13 @@ void onMouseEven(GLFWwindow* pWindow, int button, int action, int modify) {
 			double x = 0;
 			double y = 0;
 			glfwGetCursorPos(pWindow, &x, &y);
-			gCamera.onMouseDown(x, y);
+			gCamera.onMouseDown((int)x, (int)y);
 		}
 		else {
 			double x = 0;
 			double y = 0;
 			glfwGetCursorPos(pWindow, &x, &y);
-			gCamera.onMouseUp(x, y);
+			gCamera.onMouseUp((int)x, (int)y);
 		}
 	}
 	else {
@@ -58,7 +57,7 @@ void onMouseEven(GLFWwindow* pWindow, int button, int action, int modify) {
 }
 
 void onMouseMoveEvent(GLFWwindow* pWindow, double x, double y) {
-	gCamera.onMouseMove(x, y);
+	gCamera.onMouseMove((int)x, (int)y);
 }
 
 void init();
@@ -117,11 +116,11 @@ void display() {
 	static float rote = 0.0f;
 	
 	if (pBox) {
-		vmath::mat4 projectT = vmath::perspective(120.0f,  800.0f / 600.0f, 1.0f, 150.0f);
+		vmath::mat4 projectT = vmath::perspective(90.0f,  800.0f / 600.0f, 3.0f, 15000.0f);
 
 		rote +=  0.3f;
 		
-		pBox->setTransform( vmath::translate(0.0f, 0.0f, -5.0f)  * gCamera._ball.getPose());
+		pBox->setTransform(vmath::translate(0.0f, 0.0f, -45.0f)  * gCamera._ball.getPose() * vmath::scale(40.0f));
 		pBox->onRender(gCamera.getViewMatrix(), projectT);
 
 		// render 2

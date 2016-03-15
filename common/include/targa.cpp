@@ -1,5 +1,5 @@
+#include "targa.h"
 #include <stdio.h>
-#include "vgl.h"
 
 namespace vtarga
 {
@@ -102,6 +102,8 @@ static bool get_targa_format_type_and_size(const targa_header &header, GLenum &f
     }
 }
 
+#include <memory.h>
+
 unsigned char * load_targa(const char * filename, GLenum &format, int &width, int &height)
 {
     targa_header header;
@@ -131,6 +133,7 @@ unsigned char * load_targa(const char * filename, GLenum &format, int &width, in
     else
     {
         fread(data, width * height, size, f);
+		//memset(data, 100, width * height * size);
     }
 
     fclose(f);

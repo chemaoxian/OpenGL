@@ -2,16 +2,19 @@
 #include "BoxCell.h"
 #include <gl/glew.h>
 #include "LoadShaders.h"
+#include "targa.h"
 
 struct BoxCellModel {
 	GLuint vertextId;
 	GLuint bufferId;
 	GLuint indexId;
 	GLuint shaderId;
+	GLuint textId;
 
 	GLint worldMatrixLoc;
 	GLint viewMatrixLoc;
 	GLint projectMatrixLoc;
+	GLint texLoc;
 
 	BoxCellModel(const char* verfile, const char* fragfile)
 	:vertextId(0),
@@ -45,6 +48,17 @@ struct BoxCellModel {
 			0
 		};
 
+		GLfloat uvs[16] = {
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+			1.0f, 0.0f,
+			0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+		};
+
 		GLushort indexs[36] = {
 			0, 1, 2,
 			2, 3, 0, // up
@@ -72,10 +86,25 @@ struct BoxCellModel {
 		// init VBO
 		glGenBuffers(1, &bufferId);
 		glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(pos) + sizeof(colors) + sizeof(normals), 0, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(pos) + sizeof(colors) + sizeof(normals) + sizeof(uvs), 0, GL_STATIC_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(pos), pos);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(pos), sizeof(colors), colors);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(pos) + sizeof(colors), sizeof(normals), normals);
+		glBufferSubData(GL_ARRAY_BUFFER, sizeof(pos) + sizeof(colors) + sizeof(normals), sizeof(uvs), uvs);
+
+		glEnable(GL_TEXTURE_2D);
+		
+		glGenTextures(1, &textId);
+		glBindTexture(GL_TEXTURE_2D, textId);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   // Linear Filtered  
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		int width = 0;
+		int height = 0;
+		GLenum format = 0;
+		unsigned char* data = vtarga::load_targa("vase_plant.tga", format, width, height);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 		// bind vectext attribute
 		glEnableVertexArrayAttrib(vertextId, 0);
@@ -84,6 +113,10 @@ struct BoxCellModel {
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(pos));
 		glEnableVertexArrayAttrib(vertextId, 2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(pos) + sizeof(colors)));
+		glEnableVertexArrayAttrib(vertextId, 3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(pos) + sizeof(colors) + sizeof(normals)));
+
+		
 
 		ShaderInfo infos[] = {
 			{ GL_VERTEX_SHADER, verfile },
@@ -96,6 +129,7 @@ struct BoxCellModel {
 		worldMatrixLoc = glGetUniformLocation(shaderId, "worldMatrix");
 		viewMatrixLoc = glGetUniformLocation(shaderId, "viewMatrix");
 		projectMatrixLoc = glGetUniformLocation(shaderId, "projectMatrix");
+		texLoc = glGetUniformLocation(shaderId, "tex");
 	}
 
 	bool uninitilize() {
@@ -120,6 +154,9 @@ struct BoxCellModel {
 		glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textId);
 		
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 	
