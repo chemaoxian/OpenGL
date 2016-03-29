@@ -49,14 +49,14 @@ struct BoxCellModel {
 		};
 
 		GLfloat uvs[16] = {
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
-			0.0f, 1.0f,
-			1.0f, 0.0f,
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 1.0f,
+			1.0f, 0.0f,	// 0
+			1.0f, 1.0f, // 1
+			0.0f, 1.0f, // 2
+			0.0f, 0.0f, // 3
+			0.0f, 0.0f, // 4
+			1.0f, 0.0f,	// 5
+			1.0f, 1.0f, // 6
+			0.0f, 1.0f, // 7
 		};
 
 		GLushort indexs[36] = {
@@ -116,8 +116,6 @@ struct BoxCellModel {
 		glEnableVertexArrayAttrib(vertextId, 3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(pos) + sizeof(colors) + sizeof(normals)));
 
-		
-
 		ShaderInfo infos[] = {
 			{ GL_VERTEX_SHADER, verfile },
 			{ GL_FRAGMENT_SHADER, fragfile },
@@ -168,14 +166,13 @@ BoxCellModelPtr createBoxCellModel(const char* verShaderFile, const char* fragSh
 	return model;
 }
 
-BoxCell::BoxCell(BoxCellModelPtr& ptr) :
-	_model(ptr){
+BoxCell::BoxCell(){
 }
 
 BoxCell::~BoxCell() {
 }
 
-void BoxCell::onRender(const vmath::mat4& viewTransform, const vmath::mat4& projectTransform) {
-	_model->draw ((const GLfloat*)_worldTransform, (const GLfloat*)viewTransform, (const GLfloat*)projectTransform);
+void BoxCell::onRender(BoxCellModelPtr& model, const vmath::mat4& viewTransform, const vmath::mat4& projectTransform) {
+	model->draw ((const GLfloat*)_worldTransform, (const GLfloat*)viewTransform, (const GLfloat*)projectTransform);
 }
 

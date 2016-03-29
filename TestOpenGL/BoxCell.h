@@ -12,15 +12,14 @@ BoxCellModelPtr createBoxCellModel(const char* verShaderFile, const char* fragSh
 class BoxCell
 {
 public:
-	BoxCell(BoxCellModelPtr& model);
+	BoxCell();
 	~BoxCell();
 
-	void onRender(const vmath::mat4& viewTransform, const vmath::mat4& projectTransform);
+	void onRender(BoxCellModelPtr& model, const vmath::mat4& viewTransform, const vmath::mat4& projectTransform);
 	void setTransform(const vmath::mat4& trans) { 
 		_worldTransform = trans;
 	}
 private:
 	vmath::mat4 _worldTransform;
-	BoxCellModelPtr _model;
 };
 

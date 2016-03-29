@@ -13,6 +13,7 @@
 #include "vmath.h"
 #include "Screen.h"
 #include "Camera.h"
+#include "Cube.h"
 
 void printErrorAndExitFileLine(const char* file, int line, const char* fmt, ...) {
 
@@ -37,27 +38,65 @@ void error(int err, const char* errMsg) {
 
 bool isPressed = false;
 void onMouseEven(GLFWwindow* pWindow, int button, int action, int modify) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (action == GLFW_PRESS) {
-			double x = 0;
-			double y = 0;
-			glfwGetCursorPos(pWindow, &x, &y);
-			gCamera.onMouseDown((int)x, (int)y);
-		}
-		else {
-			double x = 0;
-			double y = 0;
-			glfwGetCursorPos(pWindow, &x, &y);
-			gCamera.onMouseUp((int)x, (int)y);
-		}
+	if (action == GLFW_PRESS) {
+		double x = 0;
+		double y = 0;
+		glfwGetCursorPos(pWindow, &x, &y);
+		gCamera.onMouseDown(button, (int)x, (int)y);
 	}
-	else {
-		gCamera._ball.reset();
+	else if (action == GLFW_RELEASE){
+		double x = 0;
+		double y = 0;
+		glfwGetCursorPos(pWindow, &x, &y);
+		gCamera.onMouseUp(button, (int)x, (int)y);
 	}
 }
 
 void onMouseMoveEvent(GLFWwindow* pWindow, double x, double y) {
 	gCamera.onMouseMove((int)x, (int)y);
+}
+
+const static float step = 0.1f;
+const static float step_angle = 0.5f;
+void onKeyEvent(GLFWwindow*, int key, int scancode, int action, int modify) {
+	switch (key) {
+	case 'W':
+		gCamera.fly(step);
+		break;
+	case 'A':
+		gCamera.strafe(-step);
+		break;
+	case 'D':
+		gCamera.strafe(step);
+		break;
+	case 'S':
+		gCamera.fly(-step);
+		break;
+	case GLFW_KEY_KP_8:
+		gCamera.walk(step);
+		break;
+	case GLFW_KEY_KP_5:
+		gCamera.walk(-step);
+		break;
+	case GLFW_KEY_KP_4:
+		gCamera.roll(step_angle);
+		break;
+	case GLFW_KEY_KP_6:
+		gCamera.roll(-step_angle);
+		break;
+	case GLFW_KEY_KP_7:
+		gCamera.yaw(step_angle);
+		break;
+	case GLFW_KEY_KP_9:
+		gCamera.yaw(-step_angle);
+		break;
+	case GLFW_KEY_KP_1:
+		gCamera.pitch(step_angle);
+		break;
+	case GLFW_KEY_KP_3:
+		gCamera.pitch(-step_angle);
+		break;
+	}
 }
 
 void init();
@@ -82,6 +121,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	glfwSetErrorCallback(error);
 	glfwSetMouseButtonCallback(pWindow, onMouseEven);
 	glfwSetCursorPosCallback(pWindow, onMouseMoveEvent);
+	glfwSetKeyCallback(pWindow, onKeyEvent);
 
 	if (glewInit() != GLEW_OK) {
 		PRINT_ERROR_AND_EXIT("init glew falied");
@@ -99,37 +139,29 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 
 GLuint boxShader = 0;
-BoxCell* pBox = nullptr;
+BoxCellModelPtr pBoxCellModel = nullptr;
+std::shared_ptr<Cube> pCube = nullptr;
 
 void init() {
-	glClearColor(0.0f, 0.0, 0.0, 1);
+	glClearColor(1.0f, 0.5, 0.2, 1);
 	glEnable(GL_CULL_FACE); // ¿ªÆô¼ô²Ã
 	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glViewport(0, 0, 800, 600);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
-	gCamera.setCameraPos(vmath::vec3(0.0f, 0.0f, 0.0f), vmath::vec3(0.0f, 0.0f, -1.0f), vmath::vec3(0.0f, 1.0f, 0.0f));
-	pBox = new BoxCell(createBoxCellModel("box.vert", "box.frag"));
-	pBox->setTransform(vmath::translate(0.0f, 0.0f, -2.0f));
+	gCamera.lookat(vmath::vec3(0.0f, 0.0f, 5.0f), vmath::vec3(0.0f, 0.0f, -1.0f), vmath::vec3(0.0f, 1.0f, 0.0f));
+	pBoxCellModel = createBoxCellModel("box.vert", "box.frag");
+
+	pCube = std::make_shared<Cube>(pBoxCellModel);
 }
 
 void display() {
-	glClear(GL_COLOR_BUFFER_BIT);
-	static float rote = 0.0f;
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if (pBox) {
-		vmath::mat4 projectT = vmath::perspective(90.0f,  800.0f / 600.0f, 3.0f, 15000.0f);
-
-		rote +=  0.3f;
-		
-		pBox->setTransform(vmath::translate(0.0f, 0.0f, -45.0f)  * gCamera._ball.getPose() * vmath::scale(40.0f));
-		pBox->onRender(gCamera.getViewMatrix(), projectT);
-
-		// render 2
-		pBox->setTransform(vmath::translate(2.0f, 0.0f, -5.0f) * vmath::rotate(rote, vmath::vec3(1, 1, 1)));
-		pBox->onRender(gCamera.getViewMatrix(), projectT);
-
-		// render 3
-		pBox->setTransform(vmath::translate(-2.0f, 0.0f, -5.0f) * vmath::rotate(rote, vmath::vec3(1, 1, 1)));
-		pBox->onRender(gCamera.getViewMatrix(), projectT);
+	if (pBoxCellModel) {
+		vmath::mat4 projectT = vmath::perspective(90.0f,  800.0f / 600.0f, 2.0f, 15000.0f);
+		pCube->onRender(gCamera.getViewMatrix(), projectT);
 
 		Sleep(0);
 	}

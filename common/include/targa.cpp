@@ -134,6 +134,19 @@ unsigned char * load_targa(const char * filename, GLenum &format, int &width, in
     {
         fread(data, width * height, size, f);
 		//memset(data, 100, width * height * size);
+		for (auto i = 0; i < width; i++) {
+			for (auto j = 0; j < height; j++) {
+				size_t base = (i * width + j) * 3;
+				if (i <= 50 || i >= width - 50 || j <= 50 || j >= height - 50) {
+					data[base] = data[base + 1] = data[base + 2] = 0x00;
+				}
+				else {
+					data[base] = 0x0F;
+					data[base + 1] = 00;
+					data[base + 2] = 0xf0;
+				}
+			}
+		}
     }
 
     fclose(f);
