@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+ * Descript the screen data struct
+ *
+ *
+ * */
+
 struct Screen
 {
 	int screenWidth;
