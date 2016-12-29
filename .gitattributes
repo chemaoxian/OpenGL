@@ -2,7 +2,11 @@
 * text=auto
 
 # Custom for Visual Studio
-*.cpp *.hpp  *.h *.c *.cxx  diff=cpp
+*.cpp diff=cpp
+*.hpp diff=cpp
+*.h diff=cpp
+*.c diff=cpp
+*.cxx  diff=cpp
 
 # Standard to msysgit
 *.doc	 diff=astextplain
