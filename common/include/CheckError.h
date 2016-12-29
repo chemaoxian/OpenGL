@@ -41,7 +41,7 @@ _CheckError( const char* file, int line )
     do {
         fprintf( stderr, "[%s:%d] %s\n", file, line, ErrorString(error) );
     } while ((error = glGetError()) != GL_NO_ERROR );
-
+ 
 }
 
 //----------------------------------------------------------------------------
